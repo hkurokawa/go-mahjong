@@ -1,12 +1,12 @@
 package mahjong
 
-type Kaze int
+type Kaze rune
 
 const (
-	東風 = 東
-	南風 = 南
-	西風 = 西
-	北風 = 北
+	東風 Kaze = '東'
+	南風      = '南'
+	西風      = '西'
+	北風      = '北'
 )
 
 type Order Kaze
@@ -15,7 +15,7 @@ type Order Kaze
 type Command int
 
 const (
-	Tsumo = iota
+	Tsumo Command = iota
 	TsumoHoura
 	RonHoura
 	Chi
@@ -36,35 +36,57 @@ type Action struct {
 // such as players, pais in the pile, discarded piles (Ho) information.
 // They are changed when a player does an action.
 type Game struct {
+	state State // Public information about the current game.
+	pile map[Pai]int // Pais in the pile.
 }
 
-// A State specifies public information of the game,
-// such as the number of remaining pais in the pile, who discarded which pais (Ho).
-type State struct {
+func (g *Game) Init() error {
+
 }
 
-// A Player specifies private information of a player.
-type Player struct {
-	Id   int
-	Name string
-	Kaze
-	Score int
-	Order
-	Hand
+// Randomly pick-up a pai from the pile.
+func (g *Game) pick() Pai {
+
 }
 
-// A PlayerInfo specifies public information of a player.
-type PlayerInfo struct {
-}
-
-func (g Game) Commands() []Command {
+// Return available commands for the given player.
+func (g Game) Commands(p Player) []Command {
 	return []Command{}
 }
 
-func (g *Game) Play() error {
+// Play the specified action on the game. If the action cannot be executed, an error returns.
+func (g *Game) Play(a Action) error {
 	return nil
 }
 
 func (g Game) Status() State {
 	return State{}
+}
+
+// A State specifies public information of the game,
+// such as the number of remaining pais in the pile, who discarded which pais (Ho).
+type State struct {
+	Junnme  int
+	NumPais int          // The number of remaining tsumoable pais.
+	Honnba  int          // How many times the renchan repeats.
+	Kyotaku int          // Deposit score.
+	Players []PlayerInfo // Public information about players.
+	Dora    []Pai
+}
+
+// A Player specifies private information of a player.
+type Player struct {
+	PlayerInfo
+	Tehai []Pai
+}
+
+// A PlayerInfo specifies public information of a player.
+type PlayerInfo struct {
+	Id   int
+	Name string
+	Kaze
+	Score int
+	Order
+	Ho   []Sutehai
+	Furo []Mentsu
 }
