@@ -3,10 +3,10 @@ package mahjong
 type Kaze rune
 
 const (
-	東風 Kaze = '東'
-	南風      = '南'
-	西風      = '西'
-	北風      = '北'
+	TongPu Kaze = '東'
+	NangPu = '南'
+	ShaPu = '西'
+	PeiPu = '北'
 )
 
 type Order Kaze
