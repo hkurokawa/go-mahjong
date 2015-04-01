@@ -41,12 +41,12 @@ type Game struct {
 }
 
 func (g *Game) Init() error {
-
+	return nil
 }
 
 // Randomly pick-up a pai from the pile.
 func (g *Game) pick() Pai {
-
+	return Pai{}
 }
 
 // Return available commands for the given player.
