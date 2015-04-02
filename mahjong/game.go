@@ -1,12 +1,17 @@
 package mahjong
 
+import (
+	"math/rand"
+	"time"
+)
+
 type Kaze rune
 
 const (
 	TongPu Kaze = '東'
-	NangPu = '南'
-	ShaPu = '西'
-	PeiPu = '北'
+	NangPu      = '南'
+	ShaPu       = '西'
+	PeiPu       = '北'
 )
 
 type Order Kaze
@@ -28,25 +33,77 @@ const (
 
 // An Action specifies who does what.
 type Action struct {
-	Player
-	Command
+	Player  Player
+	Command Command
 }
 
 // A Game specifies public and private information about the current game (Hanchang),
 // such as players, pais in the pile, discarded piles (Ho) information.
 // They are changed when a player does an action.
 type Game struct {
-	state State // Public information about the current game.
-	pile map[Pai]int // Pais in the pile.
+	state State       // Public information about the current game.
+	pile  map[Pai]int // Pais in the pile.
+	r     *rand.Rand
 }
 
 func (g *Game) Init() error {
+	// Create a Random
+	g.r = rand.New(rand.NewSource(time.Now().UnixNano()))
+	// Prepare pile
+	numPais := 0
+	for _, s := range []Suite{Manzu, Sozu, Pinzu} {
+		for i := 0; i < 10; i++ {
+			g.pile[Pai{s, Rank(i)}] = 4
+			numPais += 4
+		}
+	}
+	for _, r := range []Rank{Tong, Nang, Sha, Pei, Haku, Fa, Chung} {
+		g.pile[Pai{Zizu, r}] = 4
+		numPais += 4
+	}
+	// Create default players
+	players := []Player{}
+	kz := []Kaze{TongPu, NangPu, ShaPu, PeiPu}
+	for i, n := range []string{"Alice", "Bob", "Carol", "Ted"} {
+		hand, err := drawPais(g.pile, 13, g.r)
+		if err != nil {
+			// FIXME
+			panic(err)
+		}
+		players[i] = Player{
+			PlayerInfo: PlayerInfo{
+				Id:    i,
+				Name:  n,
+				Kaze:  kz[i],
+				Score: 25000,
+				Order: Order(kz[i]),
+				Ho:    []Sutehai{},
+				Furo:  []Mentsu{},
+			},
+			Tehai: hand,
+		}
+	}
+
+	// Reset game status
+	d, err := g.draw()
+	if err != nil {
+		// FIXME
+		panic(err)
+	}
+	g.state = State{
+		Junnme:  1,
+		NumPais: numPais,
+		Honnba:  0,
+		Kyotaku: 0,
+		Dora:    []Pai{d},
+	}
+
 	return nil
 }
 
 // Randomly pick-up a pai from the pile.
-func (g *Game) pick() Pai {
-	return Pai{}
+func (g *Game) draw() (Pai, error) {
+	return drawPai(g.pile, g.r)
 }
 
 // Return available commands for the given player.
