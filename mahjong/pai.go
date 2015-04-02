@@ -3,7 +3,7 @@ package mahjong
 type Type int
 
 const (
-	Shuntsu Type = iota
+	Shuntsu Type = 1 + iota
 	Kotsu
 	Kantsu
 	Toitsu
@@ -12,43 +12,34 @@ const (
 type Suite int
 
 const (
-	萬子 Suite = iota
-	索子
-	筒子
-	字子
+	Manzu Suite = 1 + iota
+	Sozu
+	Pinzu
+	Zizu
 )
 
 type Rank int
 
 const (
-	一 Rank = iota
-	二
-	三
-	四
-	五
-	六
-	七
-	八
-	九
-	東
-	南
-	西
-	北
-	白
-	発
-	中
+	Tong Rank = 10 + iota
+	Nang
+	Sha
+	Pei
+	Haku
+	Fa
+	Chung
 )
 
 func (r Rank) isKaze(k Kaze) bool {
 	switch k {
-	case 東風:
-		return r == 東
-	case 南風:
-		return r == 南
-	case 西風:
-		return r == 西
-	case 北風:
-		return r == 北
+	case TongPu:
+		return r == Tong
+	case NangPu:
+		return r == Nang
+	case ShaPu:
+		return r == Sha
+	case PeiPu:
+		return r == Pei
 	default:
 		return false
 	}
@@ -56,7 +47,7 @@ func (r Rank) isKaze(k Kaze) bool {
 
 type Pai struct {
 	Suite
-	Rank int
+	Rank
 }
 
 type Mentsu struct {
