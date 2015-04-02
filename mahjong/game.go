@@ -139,11 +139,11 @@ type Player struct {
 
 // A PlayerInfo specifies public information of a player.
 type PlayerInfo struct {
-	Id   int
-	Name string
-	Kaze
+	Id    int
+	Name  string
+	Kaze  Kaze
 	Score int
-	Order
-	Ho   []Sutehai
-	Furo []Mentsu
+	Order Order
+	Ho    []Sutehai
+	Furo  []Mentsu
 }

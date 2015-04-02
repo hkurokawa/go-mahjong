@@ -46,12 +46,12 @@ func (r Rank) isKaze(k Kaze) bool {
 }
 
 type Pai struct {
-	Suite
-	Rank
+	Suite Suite
+	Rank Rank
 }
 
 type Mentsu struct {
-	Type
+	Type Type
 	Member []Pai
 }
 
