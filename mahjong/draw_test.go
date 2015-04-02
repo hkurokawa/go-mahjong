@@ -39,12 +39,17 @@ func TestDrawPaisAll(t *testing.T) {
     }
 }
 
-func testHand(t *testing.T, a map[Pai]int, e map[Pai]int) {
-    for k, v := range a {
-        if v != e[k] {
-            t.Fatalf("Actual value differs at [%s]: %d ≠ %d.", k, v, e[k])
+func testHand(t *testing.T, a []Pai, e map[Pai]int) {
+    for i, v := range a {
+        if e[v] == 0 {
+            t.Fatalf("Actual value differs at [%s]: %d ≠ %d.", i, v, e[v])
         }
-        delete(e, k)
+        if e[v] > 0 {
+            e[v]--
+        }
+        if e[v] == 0 {
+            delete(e, v)
+        }
     }
     // Verify all the Pais in the expected is removed.
     if len(e) != 0 {
