@@ -108,15 +108,18 @@ func (g *Game) draw() (Pai, error) {
 
 // Return available commands for the given player.
 func (g Game) Commands(p Player) []Command {
+	// FIXME
 	return []Command{}
 }
 
 // Play the specified action on the game. If the action cannot be executed, an error returns.
 func (g *Game) Play(a Action) error {
+	// FIXME
 	return nil
 }
 
 func (g Game) Status() State {
+	// FIXME
 	return State{}
 }
 
