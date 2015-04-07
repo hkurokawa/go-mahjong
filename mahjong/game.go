@@ -33,6 +33,7 @@ const (
 	MingKan
 	Tahai
 	TahaiReach
+	Pass
 )
 
 // An Action specifies who does what.
@@ -112,8 +113,29 @@ func (g *Game) draw() (Pai, error) {
 
 // Return available commands for the given player.
 func (g Game) Commands(p Player) []Command {
+	// Always add Pass action
+	cmds := []Command{Command{Pass, nil}}
+	// See if the last action is made by the previous player or the others.
 	// FIXME
-	return []Command{}
+	next := true
+	// See the last discarded Pai.
+	// FIXME
+	pai := Pai{}
+	// If able to Chi
+	if next {
+		cmds = append(cmds, p.Tehai.Chiable(pai)...)
+	}
+	// If able to Pong
+	cmds = append(cmds, p.Tehai.Ponnable(pai)...)
+	// If able to Kan
+	cmds = append(cmds, p.Tehai.Kannable(pai)...)
+	// If able to Ron
+	if p.Ronnable(pai) {
+		cmds = append(cmds, Command{RonHoura, nil})
+	}
+
+
+	return cmds
 }
 
 // Play the specified action on the game. If the action cannot be executed, an error returns.
@@ -138,10 +160,33 @@ type State struct {
 	Dora    []Pai
 }
 
+// A Tehai specifies a sequence of Pais.
+type Tehai []Pai
+
+func (t Tehai) Chiable(p Pai) []Command {
+	//FIXME
+	return nil
+}
+
+func (t Tehai) Ponnable(p Pai) []Command {
+	//FIXME
+	return nil
+}
+
+func (t Tehai) Kannable(p Pai) []Command {
+	//FIXME
+	return nil
+}
+
 // A Player specifies private information of a player.
 type Player struct {
 	PlayerInfo
-	Tehai []Pai
+	Tehai Tehai
+}
+
+func (p Player) Ronnable(pai Pai) bool {
+	//FIXME
+	return false
 }
 
 // A PlayerInfo specifies public information of a player.
