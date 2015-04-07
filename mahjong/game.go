@@ -17,10 +17,14 @@ const (
 type Order Kaze
 
 // A Command specifies an action a player can take.
-type Command int
+type Command struct {
+	Type CommandType
+	With []Pai
+}
+type CommandType int
 
 const (
-	Tsumo Command = iota
+	Tsumo CommandType = iota
 	TsumoHoura
 	RonHoura
 	Chi
