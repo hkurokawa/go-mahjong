@@ -113,27 +113,58 @@ func (g *Game) draw() (Pai, error) {
 
 // Return available commands for the given player.
 func (g Game) Commands(p Player) []Command {
-	// Always add Pass action
-	cmds := []Command{Command{Pass, nil}}
-	// See if the last action is made by the previous player or the others.
-	// FIXME
-	next := true
-	// See the last discarded Pai.
-	// FIXME
-	pai := Pai{}
-	// If able to Chi
-	if next {
-		cmds = append(cmds, p.Tehai.Chiable(pai)...)
-	}
-	// If able to Pong
-	cmds = append(cmds, p.Tehai.Ponnable(pai)...)
-	// If able to Kan
-	cmds = append(cmds, p.Tehai.Kannable(pai)...)
-	// If able to Ron
-	if p.Ronnable(pai) {
-		cmds = append(cmds, Command{RonHoura, nil})
+	// If someone has just done an action and no one is in turn
+	if g.state.Teban == 0 {
+		cmds := []Command{}
+		// See if the last action is made by the previous player or the others.
+		// FIXME
+		next := true
+		// See the last discarded Pai.
+		// FIXME
+		pai := Pai{}
+		// If able to Chi
+		if next {
+			cmds = append(cmds, p.Tehai.Chiable(pai)...)
+		}
+		// If able to Pong
+		cmds = append(cmds, p.Tehai.Ponnable(pai)...)
+		// If able to Kan
+		cmds = append(cmds, p.Tehai.Kannable(pai)...)
+		// If able to Ron
+		if p.Ronnable(pai) {
+			cmds = append(cmds, Command{RonHoura, nil})
+		}
+
+		// Add Pass action if there is at least one action
+		if len(cmds) > 0 {
+			cmds = append(cmds, Command{Pass, nil})
+		}
+		return cmds
 	}
 
+	// Otherwise, if it is not the player's turn just return.
+	if g.state.Teban != p.Id {
+		return []Command{}
+	}
+
+	// Your turn!
+	// FIXME Should use the last Pai the player drawed.
+	pai := Pai{}
+	cmds := []Command{}
+	// You can discard any Pai as you like.
+	for _, v := range p.Tehai {
+		cmds = append(cmds, Command{Tahai, []Pai{v}})
+	}
+	// If your hand is already in Agari, you can declare that.
+	if p.Tehai.Hourable() {
+		cmds = append(cmds, Command{TsumoHoura, []Pai{pai}})
+	}
+	if p.Furo == nil || len(p.Furo) == 0 {
+		// If there is no Huro and your tehai is Tennpaiable, you can do Reach.
+		for _, v := range p.Tehai.Tennpaiable() {
+			cmds = append(cmds, Command{TahaiReach, []Pai{v}})
+		}
+	}
 
 	return cmds
 }
@@ -152,12 +183,20 @@ func (g Game) Status() State {
 // A State specifies public information of the game,
 // such as the number of remaining pais in the pile, who discarded which pais (Ho).
 type State struct {
-	Junnme  int
-	NumPais int          // The number of remaining tsumoable pais.
-	Honnba  int          // How many times the renchan repeats.
-	Kyotaku int          // Deposit score.
-	Players []PlayerInfo // Public information about players.
-	Dora    []Pai
+	Junnme int
+	// The number of remaining tsumoable pais.
+	NumPais int
+	// How many times the current dealer continues the dealer.
+	Honnba int
+	// Deposit score.
+	Kyotaku int
+	// The ID of the player who is in turn.
+	// If the value is 0, it means no one is in turn (someone has just done an action).
+	Teban int
+	// Public information about players.
+	Players []PlayerInfo
+	// The pai drawn to specify a Dora (Often, the actual Dora is the next to the drawn Pai.)
+	Dora []Pai
 }
 
 // A Tehai specifies a sequence of Pais.
@@ -178,6 +217,16 @@ func (t Tehai) Kannable(p Pai) []Command {
 	return nil
 }
 
+func (t Tehai) Hourable() bool {
+	// FIXME
+	return false
+}
+
+func (t Tehai) Tennpaiable() []Pai {
+	// FIXME
+	return nil
+}
+
 // A Player specifies private information of a player.
 type Player struct {
 	PlayerInfo
@@ -191,6 +240,7 @@ func (p Player) Ronnable(pai Pai) bool {
 
 // A PlayerInfo specifies public information of a player.
 type PlayerInfo struct {
+	// The ID of the player. Must be positive (>0).
 	Id    int
 	Name  string
 	Kaze  Kaze
