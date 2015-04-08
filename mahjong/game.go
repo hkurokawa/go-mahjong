@@ -18,7 +18,7 @@ type Order Kaze
 
 // A Command specifies an action a player can take.
 type Command struct {
-	Type CommandType
+	What CommandType
 	With []Pai
 }
 type CommandType int
