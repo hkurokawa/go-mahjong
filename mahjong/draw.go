@@ -49,8 +49,8 @@ func drawPai(pile map[Pai]int, r *rand.Rand) (Pai, error) {
 	if err != nil {
 		return Pai{}, err
 	}
-    if len(m) != 1 {
-        return Pai{}, errors.New(fmt.Sprintf("Only one Pai should be picked up: %s.", m))
-    }
+	if len(m) != 1 {
+		return Pai{}, errors.New(fmt.Sprintf("Only one Pai should be picked up: %s.", m))
+	}
 	return m[0], nil
 }
