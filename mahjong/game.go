@@ -46,8 +46,8 @@ type Action struct {
 // such as players, pais in the pile, discarded piles (Ho) information.
 // They are changed when a player does an action.
 type Game struct {
-	state State       // Public information about the current game.
-	pile  map[Pai]int // Pais in the pile.
+	state State // Public information about the current game.
+	pile  []Pai // Pais in the pile.
 	r     *rand.Rand
 }
 
@@ -55,26 +55,32 @@ func (g *Game) Init() error {
 	// Create a Random
 	g.r = rand.New(rand.NewSource(time.Now().UnixNano()))
 	// Prepare pile
+	g.pile = make([]Pai, 0, 136)
 	numPais := 0
 	for _, s := range []Suite{Manzu, Sozu, Pinzu} {
 		for i := 0; i < 10; i++ {
-			g.pile[Pai{s, Rank(i)}] = 4
+			for j := 0; j < 4; j++ {
+				g.pile = append(g.pile, Pai{s, Rank(i)})
+			}
 			numPais += 4
 		}
 	}
 	for _, r := range []Rank{Tong, Nang, Sha, Pei, Haku, Fa, Chung} {
-		g.pile[Pai{Zizu, r}] = 4
+		for j := 0; j < 4; j++ {
+			g.pile = append(g.pile, Pai{Zizu, r})
+		}
 		numPais += 4
 	}
 	// Create default players
 	players := []Player{}
 	kz := []Kaze{TongPu, NangPu, ShaPu, PeiPu}
 	for i, n := range []string{"Alice", "Bob", "Carol", "Ted"} {
-		hand, err := drawPais(g.pile, 13, g.r)
+		hand, np, err := drawPais(g.pile, 13, g.r)
 		if err != nil {
 			// FIXME
 			panic(err)
 		}
+		g.pile = np
 		players[i] = Player{
 			PlayerInfo: PlayerInfo{
 				Id:    i,
@@ -108,7 +114,12 @@ func (g *Game) Init() error {
 
 // Randomly pick-up a pai from the pile.
 func (g *Game) draw() (Pai, error) {
-	return drawPai(g.pile, g.r)
+	p, np, err := drawPai(g.pile, g.r)
+	if err != nil {
+		return Pai{}, err
+	}
+	g.pile = np
+	return p, err
 }
 
 // Return available commands for the given player.

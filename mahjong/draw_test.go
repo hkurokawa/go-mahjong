@@ -3,57 +3,25 @@ package mahjong
 import (
 	"math/rand"
 	"testing"
-	"time"
 )
 
 func TestDrawPaisAll(t *testing.T) {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	pile := make(map[Pai]int)
-	pile[Pai{Zizu, Tong}] = 1
-	pile[Pai{Zizu, Nang}] = 1
-	pile[Pai{Zizu, Sha}] = 1
-	pile[Pai{Zizu, Pei}] = 1
-	pile[Pai{Zizu, Haku}] = 1
-	pile[Pai{Zizu, Fa}] = 1
-	pile[Pai{Zizu, Chung}] = 1
-	pile[Pai{Manzu, 1}] = 1
-	pile[Pai{Manzu, 9}] = 1
-	pile[Pai{Sozu, 1}] = 1
-	pile[Pai{Sozu, 9}] = 1
-	pile[Pai{Pinzu, 1}] = 1
-	pile[Pai{Pinzu, 9}] = 1
-	expected := make(map[Pai]int)
-	for k, v := range pile {
-		expected[k] = v
-	}
-	hand, err := drawPais(pile, 13, r)
+	r := rand.New(rand.NewSource(99))
+	pile := []Pai{Pai{Zizu, Tong}, Pai{Zizu, Nang}, Pai{Zizu, Sha}, Pai{Zizu, Pei}, Pai{Zizu, Haku}, Pai{Zizu, Fa}, Pai{Zizu, Chung}, Pai{Manzu, 1}, Pai{Manzu, 9}, Pai{Sozu, 1}, Pai{Sozu, 9}, Pai{Pinzu, 1}, Pai{Pinzu, 9}}
+	expected := []Pai{Pai{Pinzu, 1}, Pai{Manzu, 1}, Pai{Zizu, Sha}, Pai{Zizu, Pei}, Pai{Pinzu, 9}, Pai{Zizu, Fa}, Pai{Manzu, 9}, Pai{Sozu, 1}, Pai{Sozu, 9}, Pai{Zizu, Tong}, Pai{Zizu, Nang}, Pai{Zizu, Chung}, Pai{Zizu, Haku}}
+	hand, pile, err := drawPais(pile, 13, r)
 	if err != nil {
 		t.Fatalf("Failed to draw %d Pais: %s.", 13, err)
 	}
-	testHand(t, hand, expected)
-	num := 0
-	for _, v := range pile {
-		num += v
+	if len(hand) != len(expected) {
+		t.Errorf("%s ≠ %s.", hand, expected)
 	}
-	if num != 0 {
+	if len(pile) != 0 {
 		t.Errorf("Pile should be empty: %s.", pile)
 	}
-}
-
-func testHand(t *testing.T, a []Pai, e map[Pai]int) {
-	for i, v := range a {
-		if e[v] == 0 {
-			t.Fatalf("Actual value differs at [%s]: %d ≠ %d.", i, v, e[v])
+	for i, v := range hand {
+		if v != expected[i] {
+			t.Errorf("Hand differs from the expected. %s ≠ %s at %d.", v, expected[i], i)
 		}
-		if e[v] > 0 {
-			e[v]--
-		}
-		if e[v] == 0 {
-			delete(e, v)
-		}
-	}
-	// Verify all the Pais in the expected is removed.
-	if len(e) != 0 {
-		t.Fatalf("Remaining expected values: %s.", e)
 	}
 }
